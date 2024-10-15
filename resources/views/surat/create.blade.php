@@ -5,31 +5,31 @@
     <h1>Tambah Surat Baru</h1>
 
     @if (session('success'))
-        <script>
-            alert('{{ session('success') }}');
-        </script>
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
     @elseif (session('error'))
-        <script>
-            alert('{{ session('error') }}');
-        </script>
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
     @endif
 
     <form action="{{ route('surat.store') }}" method="POST">
         @csrf
         <div class="form-group">
-            <label for="prodi">Program Studi</label>
-            <select name="prodi" id="prodi" class="form-control" required>
+            <label for="prodi_id">Program Studi</label>
+            <select name="prodi_id" id="prodi_id" class="form-control" required>
                 <option value="">Pilih Program Studi</option>
                 @foreach ($prodi as $item)
-                    <option value="{{ $item->id }}">{{ $item->nama }}</option> 
+                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
                 @endforeach
-            </select>
+            </select>            
         </div>
 
         <div class="form-group">
-            <label for="nomor_per_prodi">Nomor Surat per Prodi</label>
+            <label for="nomor_per_prodi">ID Surat</label>
             <div class="input-group">
-                <input type="text" name="nomor_per_prodi" class="form-control" id="nomor_per_prodi" value="" readonly>
+                <input type="text" name="nomor_per_prodi" class="form-control" id="nomor_per_prodi" readonly>
                 <div class="input-group-append">
                     <button type="button" class="btn btn-secondary" id="generateId">Generate</button>
                 </div>
@@ -62,11 +62,9 @@
 </div>
 
 <script>
-    document.getElementById('prodi').addEventListener('change', function() {
-        var prodiId = this.value;
-
+    // Fungsi untuk mendapatkan nomor surat per prodi
+    function getNomorSuratPerProdi(prodiId) {
         if (prodiId) {
-            // Meminta nomor surat per prodi
             fetch(`/surat/generate-nomor-perprodi/${prodiId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -78,38 +76,19 @@
         } else {
             document.getElementById('nomor_per_prodi').value = '';
         }
+    }
+
+    document.getElementById('prodi_id').addEventListener('change', function() {
+        getNomorSuratPerProdi(this.value);
     });
 
-    // Event listener untuk tombol Generate
     document.getElementById('generateId').addEventListener('click', function() {
-        var prodiId = document.getElementById('prodi').value;
-
+        var prodiId = document.getElementById('prodi_id').value;
         if (prodiId) {
-            // Meminta nomor surat per prodi ketika klik tombol generate
-            fetch(`/surat/generate-nomor-perprodi/${prodiId}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('nomor_per_prodi').value = data.nextNomorPerProdi;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+            getNomorSuratPerProdi(prodiId);
         } else {
             alert('Pilih program studi terlebih dahulu');
         }
     });
-
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-
 </script>
 @endsection

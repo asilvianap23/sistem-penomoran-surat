@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [\App\Http\Controllers\SuratController::class, 'index']);
 
     Route::resource('surat', SuratController::class);
+    Route::get('/surat/create', [SuratController::class, 'create'])->name('surat.create');
     Route::get('/surat/generate-nomor-perprodi/{prodiId}', [SuratController::class, 'generateNomorPerProdi']);
     
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

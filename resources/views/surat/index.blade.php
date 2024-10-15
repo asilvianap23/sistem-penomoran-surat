@@ -24,7 +24,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $surat->jenis_surat }}</td>
                     <td>
-                        {{ $surat->prodi }}
+                        {{ $surat->prodi->nama }}
                     </td>
                     <td>{{ $surat->nomor_surat }}</td>
                     <td>{{ $surat->perihal }}</td>

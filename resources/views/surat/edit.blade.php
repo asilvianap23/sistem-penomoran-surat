@@ -9,18 +9,36 @@
         @method('PUT')
 
         <div class="form-group">
-            <label for="id">ID Surat</label>
-            <input type="text" name="id" class="form-control" value="{{ $surat->id }}" readonly>
+            <label for="nomor_per_prodi">Nomor Per Prodi</label>
+            <input type="number" name="nomor_per_prodi" class="form-control" value="{{ $surat->nomor_per_prodi }}" readonly>
         </div>
+        
 
         <div class="form-group">
             <label for="jenis_surat">Jenis Surat</label>
             <input type="text" name="jenis_surat" class="form-control" value="{{ $surat->jenis_surat }}" required>
         </div>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
 
         <div class="form-group">
-            <label for="prodi">Program Studi</label>
-            <input type="text" name="prodi" class="form-control" value="{{ $surat->prodi }}" required>
+            <label for="prodi_id">Program Studi</label>
+            <select name="prodi_id" id="prodi_id" class="form-control" readonly>
+                <option value="">Pilih Program Studi</option>
+                @foreach ($prodi as $item)
+                    <option value="{{ $item->id }}" {{ $item->id == $surat->prodi_id ? 'selected' : '' }}>
+                        {{ $item->nama}} 
+                    </option> 
+                @endforeach
+            </select>
         </div>
 
         <div class="form-group">
