@@ -4,27 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Prodi;
 use App\Models\Surat;
+use App\Models\JenisSurat;
 use Illuminate\Http\Request;
 
 class SuratController extends Controller
 {
     public function index()
     {
-        $surats = Surat::with('prodi')->get();
+        $surats = Surat::with('prodi', 'jenisSurat')->paginate(10);
         return view('surat.index', compact('surats'));
     }
 
     public function create()
     {
         $prodi = Prodi::all();
-        return view('surat.create', compact('prodi'));
+        $jenisSurat = JenisSurat::all();
+        return view('surat.create', compact('prodi', 'jenisSurat'));
     }
 
     public function store(Request $request)
     {
         // Validasi input
         $request->validate([
-            'nomor_per_prodi' => 'required',
             'jenis_surat' => 'required',
             'prodi_id' => 'required',
             'nomor_surat' => 'required|unique:surat,nomor_surat',
@@ -32,15 +33,16 @@ class SuratController extends Controller
             'isi' => 'required',
         ]);
 
-        // Cek apakah ID sudah ada di database untuk prodi yang berbeda
-        $existingSurat = Surat::where('nomor_per_prodi', $request->nomor_per_prodi)
-                              ->where('prodi_id', '<>', $request->prodi_id)
-                              ->first();
-
-        // Cari nomor terakhir berdasarkan program studi
-        $lastSurat = Surat::where('prodi_id', $request->prodi_id)->orderBy('nomor_per_prodi', 'desc')->first();
+        // Cari nomor terakhir berdasarkan program studi dan jenis surat
+        $lastSurat = Surat::where('prodi_id', $request->prodi_id)
+                          ->where('jenis_surat', $request->jenis_surat)
+                          ->orderBy('nomor_per_prodi', 'desc')
+                          ->first();
         $nextNomor = $lastSurat ? $lastSurat->nomor_per_prodi + 1 : 1;
-
+        if (Surat::where('nomor_surat', $request->nomor_surat)->exists()) {
+            return redirect()->back()->with('error', 'Nomor surat sudah ada. Silakan gunakan nomor surat yang berbeda.');
+        }
+    
         // Buat surat baru
         try {
             Surat::create([
@@ -52,7 +54,7 @@ class SuratController extends Controller
                 'isi' => $request->isi,
             ]);
 
-            return redirect()->route('surat.create')->with('success', 'Surat berhasil ditambahkan dengan nomor ' . $nextNomor);
+            return redirect()->route('surat.index')->with('success', 'Surat berhasil ditambahkan dengan nomor ' . $nextNomor);
         } catch (\Illuminate\Database\QueryException $e) {
             return redirect()->route('surat.create')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
@@ -61,7 +63,8 @@ class SuratController extends Controller
     public function edit(Surat $surat)
     {
         $prodi = Prodi::all();
-        return view('surat.edit', compact('surat', 'prodi'));
+        $jenisSurat = JenisSurat::all();
+        return view('surat.edit', compact('surat', 'prodi', 'jenisSurat'));
     }
 
     public function update(Request $request, Surat $surat)
@@ -98,11 +101,25 @@ class SuratController extends Controller
         return redirect()->route('surat.index')->with('success', 'Surat berhasil dihapus.');
     }
 
-    public function generateNomorPerProdi($prodiId)
+    public function generateNomorPerProdi(Request $request)
     {
-        $lastSurat = Surat::where('prodi_id', $prodiId)->orderBy('nomor_per_prodi', 'desc')->first();
-        $nextNomorPerProdi = $lastSurat ? $lastSurat->nomor_per_prodi + 1 : 1;
-
-        return response()->json(['nextNomorPerProdi' => $nextNomorPerProdi]);
+        $prodiId = $request->input('prodi_id');
+        $jenisSuratId = $request->input('jenis_surat');
+    
+        // Mendapatkan nomor berikutnya
+        $nextNomor = $this->getNextNomorPerProdi($prodiId, $jenisSuratId);
+    
+        return response()->json(['nextNomorPerProdi' => $nextNomor]);
     }
+    
+    private function getNextNomorPerProdi($prodiId, $jenisSuratId)
+    {
+        // Logika untuk mendapatkan nomor surat per prodi
+        $lastSurat = Surat::where('prodi_id', $prodiId)
+                          ->where('jenis_surat', $jenisSuratId)
+                          ->orderBy('nomor_per_prodi', 'desc')
+                          ->first();
+        return $lastSurat ? $lastSurat->nomor_per_prodi + 1 : 1;
+    }
+    
 }

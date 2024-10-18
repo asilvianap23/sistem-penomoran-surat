@@ -1,0 +1,103 @@
+body {
+    background-color: #e9ecef; /* Warna latar belakang yang lebih lembut */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Font modern */
+    color: #343a40; /* Warna teks utama */
+    line-height: 1.6; /* Jarak antar baris yang lebih baik */
+}
+
+.container {
+    max-width: 1400px; /* Lebar maksimum konten utama yang lebih lebar */
+    margin: 0 auto; /* Memusatkan konten */
+    padding: 20px; /* Padding di dalam konten */
+}
+
+.navbar {
+    background-color: #4a4e69; /* Warna navbar gelap */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Bayangan navbar yang lebih dalam */
+}
+
+.navbar-brand {
+    color: #4a4e69!important; /* Warna teks logo */
+    font-weight: bold; /* Berat font logo */
+    font-size: 1.8rem; /* Ukuran font logo */
+    transition: color 0.3s; /* Efek transisi untuk logo */
+}
+
+.navbar-nav .nav-link {
+    color: #f8f9fa !important; /* Warna teks link */
+    transition: color 0.3s, background-color 0.3s; /* Efek transisi */
+    padding: 15px 20px; /* Padding pada link */
+}
+
+.navbar-nav .nav-link:hover {
+    color: #4a4e69 !important; /* Warna teks saat hover */
+    background-color: rgba(255, 255, 255, 0.2); /* Latar belakang saat hover */
+    border-radius: 5px; /* Sudut melengkung saat hover */
+}
+
+.alert {
+    border-radius: 8px; /* Sudut melengkung */
+    padding: 15px; /* Padding lebih */
+    margin-top: 20px; /* Margin atas untuk jarak */
+}
+
+.footer {
+    background-color: #4a4e69; /* Warna footer */
+    border-top: 1px solid #dcdcdc; /* Garis atas footer */
+    margin-top: 40px; /* Margin atas untuk jarak */
+    padding: 20px 0; /* Padding vertikal footer */
+}
+
+.copyright {
+    font-size: 16px; /* Ukuran font lebih besar */
+    color: #4a4e69; /* Warna teks copyright */
+}
+
+.btn-link {
+    text-decoration: none; /* Menghilangkan garis bawah pada tombol link */
+}
+
+/* Style untuk tombol logout */
+.btn-link:hover {
+    color: #ff6f61; /* Warna tombol logout saat hover */
+    text-decoration: underline; /* Garis bawah saat hover */
+}
+
+/* Efek transisi pada tombol */
+.btn {
+    transition: background-color 0.3s, color 0.3s; /* Efek transisi */
+    background-color: #4a4e69; /* Warna tombol */
+    color: #ffffff; /* Warna teks tombol */
+    padding: 10px 20px; /* Padding pada tombol */
+    border: none; /* Menghilangkan border default */
+    border-radius: 5px; /* Sudut melengkung pada tombol */
+}
+
+.btn:hover {
+    background-color: #ff6f61; /* Warna tombol saat hover */
+    color: #4a4e69; /* Warna teks tombol saat hover */
+}
+
+/* Gaya untuk konten utama */
+.container {
+    background: #ffffff; /* Latar belakang putih untuk konten utama */
+    border-radius: 8px; /* Sudut melengkung pada konten */
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1); /* Bayangan pada konten */
+    padding: 30px; /* Padding di dalam konten */
+    margin-top: 20px; /* Margin atas untuk jarak */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.5rem; /* Ukuran font logo lebih kecil pada layar kecil */
+    }
+
+    .navbar-nav .nav-link {
+        padding: 10px 15px; /* Padding lebih kecil pada link di layar kecil */
+    }
+
+    .copyright {
+        font-size: 14px; /* Ukuran font lebih kecil pada copyright */
+    }
+}

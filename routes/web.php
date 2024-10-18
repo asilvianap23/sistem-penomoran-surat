@@ -1,38 +1,33 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\SuratController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\RegisterController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
+| Routes defined here will be assigned to the "web" middleware group.
 */
+
 Auth::routes();
 
-Route::get('/surat', [App\Http\Controllers\SuratController::class, 'index'])->name('surat');
-
 Route::middleware('auth')->group(function () {
-    Route::get('/', [\App\Http\Controllers\SuratController::class, 'index']);
-
-    Route::resource('surat', SuratController::class);
-    Route::get('/surat/create', [SuratController::class, 'create'])->name('surat.create');
-    Route::get('/surat/generate-nomor-perprodi/{prodiId}', [SuratController::class, 'generateNomorPerProdi']);
+    // Rute utama diarahkan ke daftar surat
+    Route::get('/', [SuratController::class, 'index']);
     
+    // Resource route untuk surat (CRUD)
+    Route::resource('surat', SuratController::class);
+    
+    // Rute untuk generate nomor per prodi menggunakan AJAX
+    // Route::post('/surat/generate-nomor-perprodi', [SuratController::class, 'generateNomorPerProdi'])->name('surat.generateNomorPerProdi');
+    Route::post('/surat/generate-nomor-per-prodi', [SuratController::class, 'generateNomorPerProdi'])->name('surat.generateNomorPerProdi');
+
+    // Rute untuk mengelola profil pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
-
 require __DIR__.'/auth.php';
-

@@ -20,5 +20,9 @@ class Surat extends Model
     {
         return $this->belongsTo(Prodi::class);
     }
+    public function jenisSurat()
+    {
+        return $this->belongsTo(JenisSurat::class, 'jenis_surat', 'id');
+    }
 
 }
