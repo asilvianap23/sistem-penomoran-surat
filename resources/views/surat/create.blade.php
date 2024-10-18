@@ -45,7 +45,8 @@
 
         <div class="form-group">
             <label for="nomor_surat">Nomor Surat</label>
-            <input type="text" name="nomor_surat" class="form-control" required>
+            <input type="text" name="nomor_surat" class="form-control" required id="nomor_surat">
+            <div id="nomor_surat_error" class="text-danger" style="display: none;">Nomor surat sudah ada.</div>
         </div>
 
         <div class="form-group">
@@ -67,6 +68,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Fungsi untuk mendapatkan nomor surat per program studi
         function getNomorSuratPerProdi(prodiId, jenisSuratId) {
             if (prodiId && jenisSuratId) {
                 $.ajax({
@@ -96,12 +98,14 @@
             }
         }
 
+        // Menangani perubahan pada dropdown Program Studi dan Jenis Surat
         $('#prodi_id, #jenis_surat').change(function() {
             var prodiId = $('#prodi_id').val();
             var jenisSuratId = $('#jenis_surat').val();
             getNomorSuratPerProdi(prodiId, jenisSuratId);
         });
 
+        // Menangani tombol Generate ID
         $('#generateId').click(function() {
             var prodiId = $('#prodi_id').val();
             var jenisSuratId = $('#jenis_surat').val();
@@ -111,6 +115,34 @@
             }
             getNomorSuratPerProdi(prodiId, jenisSuratId);
         });
+
+        // Validasi nomor surat yang dimasukkan manual
+        $('#nomor_surat').on('input', function() {
+            var nomorSurat = $(this).val();
+            if (nomorSurat) {
+                $.ajax({
+                    url: '{{ route('surat.checkNomor') }}',
+                    type: 'POST',
+                    data: {
+                        nomor_surat: nomorSurat,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            $('#nomor_surat_error').show(); // Tampilkan pesan kesalahan jika nomor sudah ada
+                        } else {
+                            $('#nomor_surat_error').hide(); // Sembunyikan pesan kesalahan jika nomor tidak ada
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+            } else {
+                $('#nomor_surat_error').hide(); // Sembunyikan pesan jika input kosong
+            }
+        });
     });
 </script>
+
 @endsection

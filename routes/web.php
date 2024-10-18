@@ -20,8 +20,7 @@ Route::middleware('auth')->group(function () {
     // Resource route untuk surat (CRUD)
     Route::resource('surat', SuratController::class);
     
-    // Rute untuk generate nomor per prodi menggunakan AJAX
-    // Route::post('/surat/generate-nomor-perprodi', [SuratController::class, 'generateNomorPerProdi'])->name('surat.generateNomorPerProdi');
+    Route::post('/surat/check-nomor', [SuratController::class, 'checkNomor'])->name('surat.checkNomor');
     Route::post('/surat/generate-nomor-per-prodi', [SuratController::class, 'generateNomorPerProdi'])->name('surat.generateNomorPerProdi');
 
     // Rute untuk mengelola profil pengguna

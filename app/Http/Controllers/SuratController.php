@@ -9,10 +9,37 @@ use Illuminate\Http\Request;
 
 class SuratController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $surats = Surat::with('prodi', 'jenisSurat')->paginate(10);
-        return view('surat.index', compact('surats'));
+        $query = Surat::query();
+        $prodi = Prodi::all();
+
+        // Filter berdasarkan nomor surat
+        if ($request->filled('nomor_per_prodi')) {
+            $query->where('nomor_per_prodi', 'like', '%' . $request->nomor_per_prodi . '%');
+        }
+
+        // Filter berdasarkan jenis surat
+        if ($request->filled('jenis_surat')) {
+            $query->where('jenis_surat', $request->jenis_surat);
+        }
+            // Filter berdasarkan prodi
+        if ($request->filled('prodi')) {
+            $query->where('prodi_id', $request->prodi);
+        }
+
+        // Filter berdasarkan perihal
+        if ($request->filled('perihal')) {
+            $query->where('perihal', 'like', '%' . $request->perihal . '%');
+        }
+
+        // Ambil data dengan pagination
+        $surats = $query->paginate(10);
+
+        // Ambil data jenis surat untuk filter
+        $jenisSurat = JenisSurat::all();
+        return view('surat.index', compact('surats', 'jenisSurat', 'prodi'));
     }
 
     public function create()
@@ -121,5 +148,14 @@ class SuratController extends Controller
                           ->first();
         return $lastSurat ? $lastSurat->nomor_per_prodi + 1 : 1;
     }
+    public function checkNomor(Request $request)
+    {
+        $request->validate(['nomor_surat' => 'required|string']);
+
+        $exists = Surat::where('nomor_surat', $request->nomor_surat)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     
 }

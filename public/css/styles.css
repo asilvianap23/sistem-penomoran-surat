@@ -101,3 +101,8 @@ body {
         font-size: 14px; /* Ukuran font lebih kecil pada copyright */
     }
 }
+
+.table td.text-center {
+    padding-left: 0; /* Menghilangkan padding kiri */
+    padding-right: 0; /* Menghilangkan padding kanan */
+}
