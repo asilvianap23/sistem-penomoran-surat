@@ -13,8 +13,10 @@ class JenisSuratSeeder extends Seeder
      */
     public function run(): void
     {
+        JenisSurat::create(['nama' => 'Verivikasi Tugas Akhir']);
         JenisSurat::create(['nama' => 'Surat Bebas Pustaka']);
         JenisSurat::create(['nama' => 'Surat Bukti Upload Metopen']);
         JenisSurat::create(['nama' => 'Surat Bukti Upload KP']);
+        JenisSurat::create(['nama' => 'Surat Keluar']);
     }
 }

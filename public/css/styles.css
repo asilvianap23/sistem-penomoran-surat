@@ -106,3 +106,24 @@ body {
     padding-left: 0; /* Menghilangkan padding kiri */
     padding-right: 0; /* Menghilangkan padding kanan */
 }
+table {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Bayangan untuk tabel */
+}
+
+th {
+    text-align: center; /* Rata tengah untuk header */
+}
+
+td {
+    vertical-align: middle; /* Rata tengah untuk sel */
+}
+
+.btn {
+    transition: background-color 0.3s, color 0.3s; /* Efek transisi pada tombol */
+}
+
+.btn:hover {
+    background-color: #0056b3; /* Warna tombol saat hover */
+    color: #ffffff; /* Warna teks tombol saat hover */
+}
+

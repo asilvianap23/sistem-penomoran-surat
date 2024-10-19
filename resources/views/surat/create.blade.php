@@ -23,9 +23,9 @@
             </select>
         </div>
         
-        <div class="form-group">
+        <div class="form-group" id="prodi_group" style="display: none;">
             <label for="prodi_id">Program Studi</label>
-            <select name="prodi_id" id="prodi_id" class="form-control" required>
+            <select name="prodi_id" id="prodi_id" class="form-control">
                 <option value="">Pilih Program Studi</option>
                 @foreach ($prodi as $item)
                     <option value="{{ $item->id }}">{{ $item->nama }}</option>
@@ -61,7 +61,6 @@
 
         <button type="submit" class="btn btn-success">Simpan</button>
         <a href="{{ route('surat.index') }}" class="btn btn-secondary">Kembali</a>
-
     </form>
 </div>
 
@@ -70,50 +69,66 @@
     $(document).ready(function() {
         // Fungsi untuk mendapatkan nomor surat per program studi
         function getNomorSuratPerProdi(prodiId, jenisSuratId) {
-            if (prodiId && jenisSuratId) {
-                $.ajax({
-                    url: '{{ route('surat.generateNomorPerProdi') }}',
-                    type: 'POST',
-                    data: {
-                        prodi_id: prodiId,
-                        jenis_surat: jenisSuratId,
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.nextNomorPerProdi) {
-                            $('#nomor_per_prodi').val(response.nextNomorPerProdi);
-                            // swal("Sukses!", "Nomor surat per prodi berhasil didapatkan.", "success");
-                        } else {
-                            $('#nomor_per_prodi').val(''); // Kosongkan jika tidak ada respons
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX error:', error);
-                        console.error('XHR:', xhr);
-                        alert('Terjadi kesalahan saat mendapatkan nomor per prodi. Status: ' + status);
+            $.ajax({
+                url: '{{ route('surat.generateNomorPerProdi') }}',
+                type: 'POST',
+                data: {
+                    prodi_id: prodiId,
+                    jenis_surat: jenisSuratId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.nextNomorPerProdi) {
+                        $('#nomor_per_prodi').val(response.nextNomorPerProdi);
+                    } else {
+                        $('#nomor_per_prodi').val(''); // Kosongkan jika tidak ada nomor
                     }
-                });
-            } else {
-                $('#nomor_per_prodi').val(''); // Kosongkan jika prodi dan jenis surat tidak dipilih
-            }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', error);
+                    alert('Terjadi kesalahan saat mendapatkan nomor per prodi. Status: ' + status);
+                }
+            });
         }
 
-        // Menangani perubahan pada dropdown Program Studi dan Jenis Surat
-        $('#prodi_id, #jenis_surat').change(function() {
-            var prodiId = $('#prodi_id').val();
+        // Menangani perubahan pada dropdown Jenis Surat
+        $('#jenis_surat').change(function() {
+            var jenisSuratId = $(this).val();
+            // Tampilkan atau sembunyikan dropdown Prodi
+            if (jenisSuratId == 1) { // Ganti ID 1 dengan ID yang sesuai
+                $('#prodi_group').show(); // Tampilkan dropdown Prodi
+            } else {
+                $('#prodi_group').hide(); // Sembunyikan dropdown Prodi
+                getNomorSuratPerProdi(null, jenisSuratId); // Generate nomor tanpa prodi
+            }
+        });
+
+        // Menangani perubahan pada dropdown Program Studi
+        $('#prodi_id').change(function() {
+            var prodiId = $(this).val();
             var jenisSuratId = $('#jenis_surat').val();
-            getNomorSuratPerProdi(prodiId, jenisSuratId);
+            if (jenisSuratId) {
+                getNomorSuratPerProdi(prodiId, jenisSuratId);
+            }
         });
 
         // Menangani tombol Generate ID
         $('#generateId').click(function() {
             var prodiId = $('#prodi_id').val();
             var jenisSuratId = $('#jenis_surat').val();
-            if (!prodiId || !jenisSuratId) {
-                alert('Pilih program studi dan jenis surat terlebih dahulu');
+
+            if (!jenisSuratId) {
+                alert('Pilih jenis surat terlebih dahulu.');
                 return;
             }
-            getNomorSuratPerProdi(prodiId, jenisSuratId);
+
+            if (jenisSuratId != 1) { // Ganti ID 1 dengan ID yang sesuai
+                getNomorSuratPerProdi(null, jenisSuratId); // Panggil tanpa prodi
+            } else if (!prodiId) {
+                alert('Pilih program studi terlebih dahulu.');
+            } else {
+                getNomorSuratPerProdi(prodiId, jenisSuratId); // Panggil dengan prodi
+            }
         });
 
         // Validasi nomor surat yang dimasukkan manual
@@ -128,11 +143,7 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success: function(response) {
-                        if (response.exists) {
-                            $('#nomor_surat_error').show(); // Tampilkan pesan kesalahan jika nomor sudah ada
-                        } else {
-                            $('#nomor_surat_error').hide(); // Sembunyikan pesan kesalahan jika nomor tidak ada
-                        }
+                        $('#nomor_surat_error').toggle(response.exists); // Tampilkan/hilangkan pesan kesalahan
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX error:', error);
@@ -142,6 +153,9 @@
                 $('#nomor_surat_error').hide(); // Sembunyikan pesan jika input kosong
             }
         });
+
+        // Pastikan dropdown Prodi tersembunyi saat halaman pertama kali dimuat
+        $('#prodi_group').hide();
     });
 </script>
 

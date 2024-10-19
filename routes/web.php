@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
     
     Route::post('/surat/check-nomor', [SuratController::class, 'checkNomor'])->name('surat.checkNomor');
     Route::post('/surat/generate-nomor-per-prodi', [SuratController::class, 'generateNomorPerProdi'])->name('surat.generateNomorPerProdi');
-
+    Route::post('/surat/filter-prodi', [SuratController::class, 'filterProdi'])->name('surat.filterProdi');
     // Rute untuk mengelola profil pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
