@@ -126,4 +126,12 @@ td {
     background-color: #0056b3; /* Warna tombol saat hover */
     color: #ffffff; /* Warna teks tombol saat hover */
 }
+.btn-group .btn {
+    margin-right: 5px; /* Memberikan sedikit jarak antara tombol */
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0; /* Menghilangkan margin kanan pada tombol terakhir */
+}
+
 

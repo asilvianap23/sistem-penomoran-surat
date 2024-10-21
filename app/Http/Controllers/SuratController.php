@@ -6,6 +6,7 @@ use App\Models\Prodi;
 use App\Models\Surat;
 use App\Models\JenisSurat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SuratController extends Controller
 {
@@ -15,6 +16,9 @@ class SuratController extends Controller
         $prodi = Prodi::all();
         $jenisSurat = JenisSurat::all();
 
+        if ($request->has('tahun') && $request->tahun != '') {
+            $query->whereYear('created_at', $request->tahun);
+        }
         // Filter berdasarkan nomor surat
         if ($request->filled('nomor_per_prodi')) {
             $query->where('nomor_per_prodi', 'like', '%' . $request->nomor_per_prodi . '%');
@@ -35,8 +39,8 @@ class SuratController extends Controller
             $query->where('perihal', 'like', '%' . $request->perihal . '%');
         }
 
-        // Ambil data dengan pagination
-        $surats = $query->paginate(10);
+        $limit = $request->get('limit', 10); // Default adalah 10 jika tidak dipilih
+        $surats = $query->paginate($limit);
 
         return view('surat.index', compact('surats', 'jenisSurat', 'prodi'));
     }
@@ -85,45 +89,72 @@ class SuratController extends Controller
             return redirect()->route('surat.create')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
+    public function show($id)
+    {
+        $surat = Surat::findOrFail($id);
+        return view('surat.show', compact('surat'));
+    }
     public function edit(Surat $surat)
     {
         $prodi = Prodi::all();
         $jenisSurat = JenisSurat::all();
         return view('surat.edit', compact('surat', 'prodi', 'jenisSurat'));
     }
-
     public function update(Request $request, Surat $surat)
     {
         $request->validate([
             'nomor_per_prodi' => 'required|integer',
-            'jenis_surat' => 'required|integer',
             'prodi_id' => $request->input('jenis_surat') == 1 ? 'required|integer' : 'nullable|integer',
             'nomor_surat' => 'required|unique:surat,nomor_surat,' . $surat->id,
             'perihal' => 'required|string',
             'isi' => 'required|string',
+            'lampiran' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:2048',
         ]);
-
+    
         // Tentukan prodi_id
         $prodiId = $request->input('jenis_surat') == 1 ? $request->prodi_id : null;
-
+    
         // Update surat dengan data dari request
         try {
+            // Variabel untuk menyimpan path lampiran
+            $lampiranPath = $surat->lampiran; // Inisialisasi dengan lampiran lama
+    
+            // Cek jika ada file lampiran baru
+            if ($request->hasFile('lampiran')) {
+                // Dapatkan nama file asli dan tambah timestamp untuk menghindari bentrok
+                $originalName = pathinfo($request->file('lampiran')->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $request->file('lampiran')->getClientOriginalExtension();
+                $newLampiranName = $originalName . '_' . time() . '.' . $extension; // Menambahkan timestamp
+    
+                // Hapus lampiran lama jika ada
+                if ($lampiranPath) {
+                    Storage::disk('public')->delete($lampiranPath);
+                }
+    
+                // Menyimpan file ke storage dengan nama baru
+                $lampiranPath = $request->file('lampiran')->storeAs('lampiran', $newLampiranName, 'public');
+            }
+    
+            // Update data surat
             $surat->update([
                 'nomor_per_prodi' => $request->nomor_per_prodi,
-                'jenis_surat' => $request->jenis_surat,
+                'jenis_surat' => $surat->jenis_surat, // Pastikan ini tetap
                 'prodi_id' => $prodiId,
                 'nomor_surat' => $request->nomor_surat,
                 'perihal' => $request->perihal,
                 'isi' => $request->isi,
+                'lampiran' => $lampiranPath, // Update lampiran
             ]);
-
-            return redirect()->route('surat.index')->with('success', 'Surat berhasil diupdate.');
+    
+            // Mengembalikan respon JSON untuk AJAX
+            return response()->json(['success' => 'Surat berhasil diupdate.']);
         } catch (\Illuminate\Database\QueryException $e) {
-            return redirect()->back()->with('error', 'Gagal memperbarui surat: ' . $e->getMessage());
+            // Mengembalikan respon JSON jika terjadi kesalahan
+            return response()->json(['error' => 'Gagal memperbarui surat: ' . $e->getMessage()], 500);
         }
     }
-
+    
+    
     public function destroy(Surat $surat)
     {
         $surat->delete();

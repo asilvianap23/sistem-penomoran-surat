@@ -12,7 +12,7 @@ class Surat extends Model
     protected $table = 'surat'; // Sesuaikan nama tabel di sini
 
     protected $fillable = [
-        'nomor_per_prodi', 'jenis_surat', 'prodi_id', 'nomor_surat', 'perihal', 'isi'
+        'nomor_per_prodi', 'jenis_surat', 'prodi_id', 'nomor_surat', 'perihal', 'isi', 'lampiran',
     ];
 
     // Definisi relasi dengan model Prodi
